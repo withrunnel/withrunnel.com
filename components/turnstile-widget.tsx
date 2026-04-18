@@ -179,44 +179,43 @@ export function TurnstileWidget({
     onTokenChange?.(value);
   });
 
-  const renderWidget = useEffectEvent(() => {
-    if (
-      !siteKey ||
-      !containerRef.current ||
-      widgetIdRef.current !== null ||
-      !window.turnstile?.render
-    ) {
-      return;
-    }
-
-    widgetIdRef.current = window.turnstile.render(containerRef.current, {
-      sitekey: siteKey,
-      action,
-      size,
-      theme: "light",
-      callback: (nextToken) => {
-        setMessage(null);
-        handleTokenChange(nextToken);
-      },
-      "expired-callback": () => {
-        setMessage("Verification expired. Please complete it again.");
-        handleTokenChange(null);
-      },
-      "error-callback": () => {
-        setMessage("Verification failed to load. Please try again.");
-        handleTokenChange(null);
-      },
-    });
-
-    setMessage(null);
-  });
-
   useEffect(() => {
     if (!siteKey) {
       return;
     }
 
     let cancelled = false;
+
+    const renderWidget = () => {
+      if (
+        !containerRef.current ||
+        widgetIdRef.current !== null ||
+        !window.turnstile?.render
+      ) {
+        return;
+      }
+
+      widgetIdRef.current = window.turnstile.render(containerRef.current, {
+        sitekey: siteKey,
+        action,
+        size,
+        theme: "light",
+        callback: (nextToken) => {
+          setMessage(null);
+          handleTokenChange(nextToken);
+        },
+        "expired-callback": () => {
+          setMessage("Verification expired. Please complete it again.");
+          handleTokenChange(null);
+        },
+        "error-callback": () => {
+          setMessage("Verification failed to load. Please try again.");
+          handleTokenChange(null);
+        },
+      });
+
+      setMessage(null);
+    };
 
     void loadTurnstileScript()
       .then(() => {
@@ -241,7 +240,7 @@ export function TurnstileWidget({
         widgetIdRef.current = null;
       }
     };
-  }, [action, siteKey, size]);
+  }, [action, handleTokenChange, siteKey, size]);
 
   useEffect(() => {
     if (resetNonce === previousResetRef.current) {

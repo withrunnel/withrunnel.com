@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import Link from "next/link";
 import {
+  ArrowsPointingOutIcon,
   BoltIcon,
   ChartBarIcon,
   CurrencyDollarIcon,
-  ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { HeroShader } from "./hero-shader";
 
 export const metadata: Metadata = {
@@ -140,13 +140,13 @@ export default function HomePage() {
                 </tr>
               </thead>
               <tbody>
-                {oldWay.map((item, i) => (
-                  <tr key={i}>
+                {oldWay.map((item, index) => (
+                  <tr key={item}>
                     <td className="border-r border-border px-8 py-3 text-center text-sm leading-5 text-muted">
                       {item}
                     </td>
                     <td className="bg-foreground px-8 py-3 text-center text-sm leading-5 text-text-light/80">
-                      {runnelWay[i]}
+                      {runnelWay[index]}
                     </td>
                   </tr>
                 ))}

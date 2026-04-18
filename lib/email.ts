@@ -1,9 +1,9 @@
 import { ServerClient } from "postmark";
+import { LOGO_DARK_BASE64, LOGO_LIGHT_BASE64 } from "./email-logos";
 import {
   createEmailManagementToken,
   getEmailManagementUrl,
 } from "./email-management";
-import { LOGO_DARK_BASE64, LOGO_LIGHT_BASE64 } from "./email-logos";
 
 let client: ServerClient | null = null;
 
