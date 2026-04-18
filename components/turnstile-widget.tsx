@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   TURNSTILE_RESPONSE_FIELD,
   TURNSTILE_SCRIPT_ID,
@@ -168,16 +168,21 @@ export function TurnstileWidget({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<TurnstileWidgetId | null>(null);
+  const onTokenChangeRef = useRef(onTokenChange);
   const previousResetRef = useRef(resetNonce);
   const [message, setMessage] = useState<string | null>(
     siteKey ? "Loading verification..." : null,
   );
   const [token, setToken] = useState("");
 
-  const handleTokenChange = useEffectEvent((value: string | null) => {
+  useEffect(() => {
+    onTokenChangeRef.current = onTokenChange;
+  }, [onTokenChange]);
+
+  const handleTokenChange = useCallback((value: string | null) => {
     setToken(value ?? "");
-    onTokenChange?.(value);
-  });
+    onTokenChangeRef.current?.(value);
+  }, []);
 
   useEffect(() => {
     if (!siteKey) {
