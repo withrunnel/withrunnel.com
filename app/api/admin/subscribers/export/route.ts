@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
-import { getDb } from "@/lib/db";
+import { deleteExpiredPendingSubscribers, getDb } from "@/lib/db";
 
 export async function GET() {
   const isAuth = await verifyAdminSession();
@@ -10,6 +10,7 @@ export async function GET() {
   }
 
   const sql = getDb();
+  await deleteExpiredPendingSubscribers();
   const subscribers = await sql`
     SELECT email, first_name, last_name, status, marketing_emails, referral_source, created_at, confirmed_at
     FROM subscribers

@@ -4,7 +4,11 @@ import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { z } from "zod/v4";
 import { logAudit } from "@/lib/audit";
-import { getDb } from "@/lib/db";
+import {
+  deleteExpiredPendingSubscribers,
+  getConfirmationTokenExpiry,
+  getDb,
+} from "@/lib/db";
 import { sendConfirmationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIpFromHeaders } from "@/lib/request-context";
@@ -66,9 +70,11 @@ export async function joinWaitlist(
   const sql = getDb();
   const id = nanoid();
   const confirmationToken = nanoid(32);
-  const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const tokenExpiry = getConfirmationTokenExpiry();
 
   try {
+    await deleteExpiredPendingSubscribers({ email: sanitizedEmail });
+
     const existing =
       await sql`SELECT id, status FROM subscribers WHERE email = ${sanitizedEmail}`;
 

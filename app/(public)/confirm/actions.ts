@@ -14,6 +14,7 @@ export type ConfirmActionState = {
   success: boolean;
   email?: string;
   error?: string;
+  requiresRejoin?: boolean;
 } | null;
 
 export async function completeConfirmationAction(
@@ -45,9 +46,17 @@ export async function completeConfirmationAction(
     subscriber.confirmation_token_expires_at &&
     new Date(subscriber.confirmation_token_expires_at) < new Date()
   ) {
+    await sql`
+      DELETE FROM subscribers
+      WHERE id = ${subscriber.id}
+        AND status = 'pending_confirmation'
+    `;
+
     return {
       success: false,
-      error: "This confirmation link has expired. Please request a new email.",
+      error:
+        "This confirmation link expired and your signup was removed. Please join the waitlist again.",
+      requiresRejoin: true,
     };
   }
 

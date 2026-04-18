@@ -1,9 +1,10 @@
-import { getDb } from "@/lib/db";
+import { deleteExpiredPendingSubscribers, getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const sql = getDb();
+  await deleteExpiredPendingSubscribers();
 
   const [
     totalResult,

@@ -69,7 +69,7 @@ export function JoinForm({
         <div>
           <p className="font-medium text-sm text-foreground">
             Almost there! Check your inbox and click the confirmation link to
-            secure your spot.
+            secure your spot. The link expires in 1 hour.
           </p>
           {state.email ? (
             <ResendEmailForm

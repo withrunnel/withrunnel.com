@@ -1,7 +1,11 @@
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { logAudit } from "@/lib/audit";
-import { getDb } from "@/lib/db";
+import {
+  deleteExpiredPendingSubscribers,
+  getConfirmationTokenExpiry,
+  getDb,
+} from "@/lib/db";
 import { sendConfirmationEmail, sendWelcomeEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, sanitizeEmail } from "@/lib/sanitize";
@@ -40,6 +44,8 @@ export async function POST(request: Request) {
     }
 
     const sql = getDb();
+    await deleteExpiredPendingSubscribers({ email: sanitized });
+
     const rows = await sql`
       SELECT id, first_name, last_name, status FROM subscribers WHERE email = ${sanitized}
     `;
@@ -52,7 +58,7 @@ export async function POST(request: Request) {
 
     if (sub.status === "pending_confirmation") {
       const token = nanoid(32);
-      const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const expiry = getConfirmationTokenExpiry();
 
       await sql`
         UPDATE subscribers

@@ -1,4 +1,4 @@
-import { getDb } from "@/lib/db";
+import { deleteExpiredPendingSubscribers, getDb } from "@/lib/db";
 import {
   DeleteSubscriberButton,
   SubscriberActions,
@@ -17,6 +17,7 @@ export default async function SubscribersPage({
   const offset = (page - 1) * perPage;
 
   const sql = getDb();
+  await deleteExpiredPendingSubscribers();
 
   const { subscribers, totalResult } = await (async () => {
     if (q) {

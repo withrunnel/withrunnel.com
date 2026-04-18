@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { InfoBox } from "@/components/info-box";
 import { ResendEmailForm } from "@/components/resend-email-form";
@@ -70,6 +71,14 @@ export function ConfirmForm({
         {state?.error ? (
           <InfoBox>
             <p className="text-sm text-danger">{state.error}</p>
+            {state.requiresRejoin ? (
+              <Link
+                href="/join"
+                className="mt-3 inline-block text-sm underline"
+              >
+                Join the waitlist again
+              </Link>
+            ) : null}
           </InfoBox>
         ) : null}
         {turnstileEnabled ? (

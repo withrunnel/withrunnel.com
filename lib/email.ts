@@ -147,13 +147,14 @@ export async function sendConfirmationEmail(params: {
           <a href="${confirmUrl}" class="btn" style="display:inline-block;padding:12px 32px;background-color:#111114;color:#F4F4F2;text-decoration:none;border-radius:6px;font-weight:500;font-size:16px;">Confirm my email</a>
         </td></tr>
       </table>
+      <p style="font-size:14px;line-height:1.6;margin:16px 0 0;color:rgba(17,17,20,0.7);">This link expires in 1 hour.</p>
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:28px;width:100%;">
         <tr><td style="background-color:#E9E9E7;padding:12px 16px;border-radius:8px;">
           <p style="margin:0;font-size:13px;line-height:1.5;color:rgba(17,17,20,0.6);">Didn't request this? You can safely ignore this email.</p>
         </td></tr>
       </table>
     `,
-    "Confirm your email to secure your spot on the Runnel waitlist.",
+    "Confirm your email within 1 hour to secure your spot on the Runnel waitlist.",
   );
 
   const postmark = getPostmark();

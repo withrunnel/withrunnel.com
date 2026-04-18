@@ -4,7 +4,6 @@ import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { logAudit } from "@/lib/audit";
 import { getDb } from "@/lib/db";
-import { sendConfirmationEmail } from "@/lib/email";
 import {
   findSubscriberForEmailManagement,
   verifyEmailManagementToken,
@@ -52,13 +51,19 @@ export async function resubscribeAction(
 
   const sql = getDb();
   const currentSubscriber = await findSubscriberForEmailManagement(claims);
+  const nextFirstName =
+    currentSubscriber?.first_name &&
+    currentSubscriber.first_name !== "[redacted]"
+      ? currentSubscriber.first_name
+      : firstName;
+  const nextLastName =
+    currentSubscriber?.last_name && currentSubscriber.last_name !== "[redacted]"
+      ? currentSubscriber.last_name
+      : lastName;
 
   if (currentSubscriber?.status === "confirmed") {
     return { success: true };
   }
-
-  const confirmationToken = nanoid(32);
-  const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const turnstileResult = await verifyTurnstileToken({
     token: formData.get(TURNSTILE_RESPONSE_FIELD),
@@ -71,41 +76,31 @@ export async function resubscribeAction(
   }
 
   try {
-    if (
-      currentSubscriber &&
-      currentSubscriber.status === "pending_confirmation"
-    ) {
-      const nextFirstName = currentSubscriber.first_name || firstName;
-      const nextLastName = currentSubscriber.last_name || lastName;
+    if (currentSubscriber?.status === "pending_confirmation") {
+      // Recover previously resubscribed rows without forcing another email confirmation.
+      await sql`
+        UPDATE subscribers
+        SET status = 'confirmed',
+            first_name = ${nextFirstName},
+            last_name = ${nextLastName},
+            marketing_emails = false,
+            confirmed_at = COALESCE(confirmed_at, NOW()),
+            confirmation_token = NULL,
+            confirmation_token_expires_at = NULL,
+            updated_at = NOW()
+        WHERE id = ${currentSubscriber.id}
+      `;
 
-      if (
-        nextFirstName !== currentSubscriber.first_name ||
-        nextLastName !== currentSubscriber.last_name
-      ) {
-        await sql`
-          UPDATE subscribers
-          SET first_name = ${nextFirstName},
-              last_name = ${nextLastName},
-              updated_at = NOW()
-          WHERE id = ${currentSubscriber.id}
-        `;
-      }
-
-      if (currentSubscriber.status === "pending_confirmation") {
-        await sql`
-          UPDATE subscribers
-          SET confirmation_token = ${confirmationToken},
-              confirmation_token_expires_at = ${tokenExpiry.toISOString()},
-              updated_at = NOW()
-          WHERE id = ${currentSubscriber.id}
-        `;
-
-        await sendConfirmationEmail({
-          to: email,
-          firstName: nextFirstName,
-          confirmationToken,
-        });
-      }
+      await logAudit({
+        action: "subscriber.resubscribed",
+        entityType: "subscriber",
+        entityId: currentSubscriber.id,
+        metadata: {
+          email,
+          previousSubscriberId: claims.subscriberId,
+          recoveredFromPendingConfirmation: true,
+        },
+      });
 
       return { success: true };
     }
@@ -113,21 +108,18 @@ export async function resubscribeAction(
     const id = nanoid();
 
     await sql`
-      INSERT INTO subscribers (id, email, first_name, last_name, status, confirmation_token, confirmation_token_expires_at, tos_accepted_at)
-      VALUES (${id}, ${email}, ${firstName}, ${lastName}, 'pending_confirmation', ${confirmationToken}, ${tokenExpiry.toISOString()}, ${new Date().toISOString()})
+      INSERT INTO subscribers (id, email, first_name, last_name, status, marketing_emails, confirmed_at, tos_accepted_at)
+      VALUES (${id}, ${email}, ${firstName}, ${lastName}, 'confirmed', false, NOW(), ${new Date().toISOString()})
     `;
 
     await logAudit({
       action: "subscriber.resubscribed",
       entityType: "subscriber",
       entityId: id,
-      metadata: { email, previousSubscriberId: claims.subscriberId },
-    });
-
-    await sendConfirmationEmail({
-      to: email,
-      firstName,
-      confirmationToken,
+      metadata: {
+        email,
+        previousSubscriberId: currentSubscriber?.id ?? claims.subscriberId,
+      },
     });
 
     return { success: true };

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { InfoBox } from "@/components/info-box";
 import { ResendEmailForm } from "@/components/resend-email-form";
@@ -74,21 +75,28 @@ export default async function ConfirmPage({
     subscriber.confirmation_token_expires_at &&
     new Date(subscriber.confirmation_token_expires_at) < new Date()
   ) {
+    await sql`
+      DELETE FROM subscribers
+      WHERE id = ${subscriber.id}
+        AND status = 'pending_confirmation'
+    `;
+
     return renderWithTurnstile(
       <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
         <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
           Link expired
         </h1>
         <InfoBox className="flex flex-col gap-4">
-          <p>This confirmation link has expired.</p>
-          <ResendEmailForm
-            email={subscriber.email}
-            title="Need a fresh confirmation email?"
-            description="Click the button below and we’ll send another confirmation link."
-            buttonLabel="Resend confirmation email"
-            successMessage="A new confirmation email is on the way."
-            turnstileSiteKey={TURNSTILE_SITE_KEY}
-          />
+          <p>
+            This confirmation link expired and your unconfirmed signup was
+            removed. Please join the waitlist again.
+          </p>
+          <Link
+            href="/join"
+            className="inline-block w-fit rounded-md bg-foreground px-6 py-2.5 font-medium text-base text-text-light transition-opacity hover:opacity-90"
+          >
+            Join the waitlist again
+          </Link>
         </InfoBox>
       </section>,
     );

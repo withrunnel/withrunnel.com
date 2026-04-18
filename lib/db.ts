@@ -1,8 +1,39 @@
 import { neon } from "@neondatabase/serverless";
 
+export const CONFIRMATION_TOKEN_TTL_MS = 60 * 60 * 1000;
+
 export function getDb() {
   const sql = neon(process.env.DATABASE_URL!);
   return sql;
+}
+
+export function getConfirmationTokenExpiry() {
+  return new Date(Date.now() + CONFIRMATION_TOKEN_TTL_MS);
+}
+
+export async function deleteExpiredPendingSubscribers(input?: {
+  email?: string;
+}) {
+  const sql = getDb();
+
+  if (input?.email) {
+    return await sql`
+      DELETE FROM subscribers
+      WHERE status = 'pending_confirmation'
+        AND email = ${input.email}
+        AND confirmation_token_expires_at IS NOT NULL
+        AND confirmation_token_expires_at <= NOW()
+      RETURNING id
+    `;
+  }
+
+  return await sql`
+    DELETE FROM subscribers
+    WHERE status = 'pending_confirmation'
+      AND confirmation_token_expires_at IS NOT NULL
+      AND confirmation_token_expires_at <= NOW()
+    RETURNING id
+  `;
 }
 
 export async function initDb() {
@@ -58,6 +89,7 @@ export async function initDb() {
   await sql`CREATE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_subscribers_status ON subscribers(status)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_subscribers_confirmation_token ON subscribers(confirmation_token)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_subscribers_pending_expiry ON subscribers(status, confirmation_token_expires_at)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id)`;
 }
