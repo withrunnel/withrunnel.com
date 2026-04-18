@@ -36,7 +36,7 @@ export function ResubscribeForm({
         </h1>
         <p className="mb-6 text-base leading-relaxed text-muted">
           You&apos;re back on the waitlist. Marketing emails are off by default
-          — you can change this anytime.
+          - you can change this anytime.
         </p>
         <Link
           href={`/email-preferences?token=${encodeURIComponent(token)}`}

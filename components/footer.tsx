@@ -18,19 +18,19 @@ export function Footer() {
                 Social
               </span>
               <Link
-                href="https://x.com/runnel"
+                href="https://x.com/withrunnel"
                 className="text-base leading-5 text-text-light transition-opacity hover:opacity-80"
               >
                 X
               </Link>
               <Link
-                href="https://discord.gg/runnel"
+                href="https://discord.gg/GjgHSgHstX"
                 className="text-base leading-5 text-text-light transition-opacity hover:opacity-80"
               >
                 Discord
               </Link>
               <Link
-                href="https://github.com/runnel"
+                href="https://github.com/withrunnel"
                 className="text-base leading-5 text-text-light transition-opacity hover:opacity-80"
               >
                 GitHub

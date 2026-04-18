@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Runnel",
+  title: "Privacy Policy - Runnel",
 };
 
 export default function PrivacyPage() {
@@ -91,13 +91,13 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Erase</strong> your data (&quot;right to be
-              forgotten&quot;) — use the unsubscribe feature
+              forgotten&quot;) - use the unsubscribe feature
             </li>
             <li>
               <strong>Restrict processing</strong> of your data
             </li>
             <li>
-              <strong>Data portability</strong> — request your data in a
+              <strong>Data portability</strong> - request your data in a
               machine-readable format
             </li>
             <li>

@@ -4,7 +4,7 @@ import { HeroShader } from "../hero-shader";
 import { JoinForm } from "./join-form";
 
 export const metadata: Metadata = {
-  title: "Join the Waitlist — Runnel",
+  title: "Join the Waitlist - Runnel",
   description: "Get notified when Runnel is available.",
 };
 

@@ -183,7 +183,7 @@ export async function sendWelcomeEmail(params: {
     `
       <h1 style="font-size:28px;font-weight:700;line-height:1.2;margin:0 0 20px;color:#111114;">You're on the list</h1>
       <p style="font-size:16px;line-height:1.6;margin:0 0 12px;color:#2a2a31;">Hi ${name},</p>
-      <p style="font-size:16px;line-height:1.6;margin:0 0 12px;color:#2a2a31;">Big things are coming — and you're first in line.</p>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 12px;color:#2a2a31;">Big things are coming - and you're first in line.</p>
       <p style="font-size:16px;line-height:1.6;margin:0 0 12px;color:#2a2a31;">Your spot on the Runnel waitlist is locked in. We're putting the finishing touches on something we think you're going to love, and we can't wait to share it with you.</p>
       <p style="font-size:16px;line-height:1.6;margin:0 0 24px;color:#2a2a31;">We'll reach out as soon as your access is ready. Until then, stay tuned.</p>
       <p style="font-size:16px;line-height:1.6;margin:0;color:#2a2a31;">See you soon,<br/>The Runnel Team</p>

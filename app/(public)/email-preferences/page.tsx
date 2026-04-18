@@ -8,7 +8,7 @@ import {
 import { EmailPreferencesForm } from "./preferences-form";
 
 export const metadata: Metadata = {
-  title: "Manage Email Preferences — Runnel",
+  title: "Manage Email Preferences - Runnel",
 };
 
 export default async function EmailPreferencesPage({

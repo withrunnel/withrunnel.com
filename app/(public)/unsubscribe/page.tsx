@@ -4,7 +4,7 @@ import { verifyEmailManagementToken } from "@/lib/email-management";
 import { UnsubscribeForm } from "./unsubscribe-form";
 
 export const metadata: Metadata = {
-  title: "Unsubscribe — Runnel",
+  title: "Unsubscribe - Runnel",
 };
 
 export default async function UnsubscribePage({

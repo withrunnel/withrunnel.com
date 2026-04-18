@@ -9,7 +9,7 @@ import {
 import { HeroShader } from "./hero-shader";
 
 export const metadata: Metadata = {
-  title: "Runnel — The Inference Platform Made Easy",
+  title: "Runnel - The Inference Platform Made Easy",
   description:
     "Seamlessly integrate 70+ models all in one place. Runnel is your scalable choice.",
 };

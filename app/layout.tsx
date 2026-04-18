@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export const metadata: Metadata = {
-  title: "Runnel — The Inference Platform",
+  title: "Runnel - The Inference Platform",
   description:
     "Seamlessly integrate 70+ models all in one place. Runnel is your scalable choice for AI inference.",
   metadataBase: new URL(

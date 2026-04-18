@@ -149,7 +149,7 @@ export default async function SubscribersPage({
                   {sub.marketing_emails ? "Yes" : "No"}
                 </td>
                 <td className="px-4 py-3 text-xs text-foreground/60">
-                  {sub.referral_source || "—"}
+                  {sub.referral_source || "-"}
                 </td>
                 <td className="px-4 py-3 text-foreground/60">
                   {new Date(sub.created_at).toLocaleDateString()}

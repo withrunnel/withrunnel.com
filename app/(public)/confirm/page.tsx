@@ -7,7 +7,7 @@ import { getDb } from "@/lib/db";
 import { ConfirmForm } from "./confirm-form";
 
 export const metadata: Metadata = {
-  title: "Confirm Your Email — Runnel",
+  title: "Confirm Your Email - Runnel",
 };
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null;

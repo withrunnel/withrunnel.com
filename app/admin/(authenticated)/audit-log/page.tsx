@@ -87,10 +87,10 @@ export default async function AuditLogPage({
                 <td className="max-w-48 truncate px-4 py-3 font-mono text-xs text-foreground/50">
                   {log.metadata && Object.keys(log.metadata).length > 0
                     ? JSON.stringify(log.metadata)
-                    : "—"}
+                    : "-"}
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-foreground/50">
-                  {log.ip_address || "—"}
+                  {log.ip_address || "-"}
                 </td>
               </tr>
             ))}

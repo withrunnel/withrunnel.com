@@ -5,7 +5,7 @@ import { verifyEmailManagementToken } from "@/lib/email-management";
 import { ResubscribeForm } from "./resubscribe-form";
 
 export const metadata: Metadata = {
-  title: "Resubscribe — Runnel",
+  title: "Resubscribe - Runnel",
 };
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null;
