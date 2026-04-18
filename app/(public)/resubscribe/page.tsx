@@ -13,7 +13,7 @@ export default async function ResubscribePage({
   const { email } = await searchParams;
 
   return (
-    <section className="px-8 pt-16 pb-24 lg:px-32">
+    <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
       <ResubscribeForm email={email} />
     </section>
   );

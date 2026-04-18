@@ -18,12 +18,12 @@ export default async function ConfirmPage({
 
   if (!token) {
     return (
-      <section className="px-8 pt-16 pb-24 lg:px-32">
-        <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
           Only one step left
         </h1>
-        <p className="mb-6 text-base leading-6 text-foreground">
-          Click the button below to confirm your email address.
+        <p className="mb-6 text-base leading-relaxed text-muted">
+          Click the confirmation link in your email to complete your signup.
         </p>
         <InfoBox>
           <p>
@@ -44,8 +44,8 @@ export default async function ConfirmPage({
 
   if (rows.length === 0) {
     return (
-      <section className="px-8 pt-16 pb-24 lg:px-32">
-        <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
           Invalid link
         </h1>
         <InfoBox>
@@ -62,8 +62,8 @@ export default async function ConfirmPage({
     new Date(subscriber.confirmation_token_expires_at) < new Date()
   ) {
     return (
-      <section className="px-8 pt-16 pb-24 lg:px-32">
-        <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
           Link expired
         </h1>
         <InfoBox>
@@ -78,9 +78,9 @@ export default async function ConfirmPage({
 
   if (subscriber.status === "confirmed") {
     return (
-      <section className="px-8 pt-16 pb-24 lg:px-32">
-        <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
-          You are in!
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+          You&apos;re in!
         </h1>
         <InfoBox>
           <p>
@@ -119,17 +119,17 @@ export default async function ConfirmPage({
   }
 
   return (
-    <section className="px-8 pt-16 pb-24 lg:px-32">
-      <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
-        You are in!
+    <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+      <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+        You&apos;re in!
       </h1>
       <InfoBox>
         <p>
           You&apos;re on the list! We&apos;ll notify you as soon as a spot opens
           up.
         </p>
-        <p className="mt-1">
-          We will send a confirmation email shortly.{" "}
+        <p className="mt-1.5">
+          A welcome email is on its way.{" "}
           <ResendButton email={subscriber.email} />
         </p>
       </InfoBox>

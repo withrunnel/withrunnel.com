@@ -8,6 +8,8 @@
   --surface: #e9e9e7;
   --surface-dark: #1c1c20;
   --text-light: #f4f4f2;
+  --danger: #dc2626;
+  --success: #16a34a;
 }
 
 @theme inline {
@@ -18,8 +20,14 @@
   --color-surface: var(--surface);
   --color-surface-dark: var(--surface-dark);
   --color-text-light: var(--text-light);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -28,6 +36,11 @@ body {
 }
 
 ::selection {
-  background: #111114;
-  color: #f4f4f2;
+  background: var(--foreground);
+  color: var(--text-light);
+}
+
+:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
 }

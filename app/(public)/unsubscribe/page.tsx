@@ -16,8 +16,8 @@ export default async function UnsubscribePage({
 
   if (!email) {
     return (
-      <section className="px-8 pt-16 pb-24 lg:px-32">
-        <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
           Unsubscribe
         </h1>
         <InfoBox>
@@ -28,37 +28,32 @@ export default async function UnsubscribePage({
   }
 
   return (
-    <section className="px-8 pt-16 pb-24 lg:px-32">
-      <h1 className="mb-6 font-bold text-[40px] leading-[56px] text-foreground">
+    <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+      <h1 className="mb-6 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
         Unsubscribe
       </h1>
-      <div className="mb-6 max-w-xl text-base leading-6 text-foreground">
-        <p>
-          To unsubscribe from the Runnel waitlist, please click the button
-          below.
-        </p>
+      <div className="mb-6 text-base leading-relaxed text-muted">
+        <p>To unsubscribe from the Runnel waitlist, click the button below.</p>
         <p className="mt-2">
-          Please note that unsubscribing will remove you from the waitlist; even
-          if you resubscribe immediately, you will be back at the back of the
-          queue.
+          Please note that unsubscribing will remove you from the waitlist. Even
+          if you resubscribe later, you will be placed at the back of the queue.
         </p>
       </div>
       <UnsubscribeForm email={email} />
-      <InfoBox className="mt-6 max-w-3xl">
+      <InfoBox className="mt-6">
         <p>
-          This will permanently delete or desensitize your email address and all
-          personal data from our (Runnel Waitlist app, available at
-          https://withrunnel.com) records.
+          This will permanently delete or anonymize your email address and all
+          personal data from our records.
         </p>
       </InfoBox>
-      <InfoBox className="mt-4 max-w-3xl">
+      <InfoBox className="mt-4">
         <p>
-          If you want to manage your preferences about marketing emails, please{" "}
+          Want to manage marketing email preferences instead?{" "}
           <Link
             href={`/email-preferences?email=${encodeURIComponent(email)}`}
             className="underline"
           >
-            click here.
+            Manage preferences
           </Link>
         </p>
       </InfoBox>

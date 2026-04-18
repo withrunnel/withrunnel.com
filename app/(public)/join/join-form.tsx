@@ -8,7 +8,7 @@ import { InfoBox } from "@/components/info-box";
 import { joinWaitlist } from "./actions";
 
 const inputClassName =
-  "h-9 w-full rounded-lg bg-surface px-4 font-sans text-sm text-foreground outline-none placeholder:text-foreground/40 focus:ring-2 focus:ring-foreground/20";
+  "h-10 w-full rounded-md bg-surface px-4 font-sans text-sm text-foreground outline-none placeholder:text-foreground/40 focus:ring-2 focus:ring-foreground/20";
 
 const labelClassName = "text-sm leading-5 text-foreground/70";
 
@@ -33,74 +33,72 @@ export function JoinForm() {
 
   if (state?.success) {
     return (
-      <div className="flex flex-col gap-4">
-        <InfoBox className="flex items-center gap-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="shrink-0 text-foreground/50"
-            role="img"
-            aria-hidden="true"
-          >
-            <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
-            <path d="m21.854 2.147-10.94 10.939" />
-          </svg>
-          <div>
-            <p className="text-sm text-foreground">
-              Almost there! Please check your inbox and click the confirmation
-              link to secure your spot.
-            </p>
-            <p className="mt-1 text-sm text-foreground/70">
-              Don&apos;t see it? Please check your spam folder or{" "}
-              <button
-                type="button"
-                className="underline"
-                onClick={() => {
-                  fetch("/api/resend", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: state.email }),
-                  });
-                }}
-              >
-                resend mail
-              </button>
-              .
-            </p>
-          </div>
-        </InfoBox>
-      </div>
+      <InfoBox className="flex items-start gap-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="mt-0.5 shrink-0 text-foreground/50"
+          role="img"
+          aria-hidden="true"
+        >
+          <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
+          <path d="m21.854 2.147-10.94 10.939" />
+        </svg>
+        <div>
+          <p className="font-medium text-sm text-foreground">
+            Almost there! Check your inbox and click the confirmation link to
+            secure your spot.
+          </p>
+          <p className="mt-1.5 text-sm text-foreground/60">
+            Don&apos;t see it? Check your spam folder or{" "}
+            <button
+              type="button"
+              className="underline transition-opacity hover:opacity-70"
+              onClick={() => {
+                fetch("/api/resend", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email: state.email }),
+                });
+              }}
+            >
+              resend the email
+            </button>
+            .
+          </p>
+        </div>
+      </InfoBox>
     );
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-5">
       {state?.error && (
         <InfoBox>
-          <p className="text-sm text-red-700">{state.error}</p>
+          <p className="text-sm text-danger">{state.error}</p>
         </InfoBox>
       )}
 
       <div className="flex flex-col gap-4">
-        <div className="flex gap-8">
-          <Field.Root name="firstName" className="flex flex-1 flex-col gap-2">
+        <div className="flex gap-4 sm:gap-6">
+          <Field.Root name="firstName" className="flex flex-1 flex-col gap-1.5">
             <Field.Label className={labelClassName}>First name</Field.Label>
             <Input required className={inputClassName} placeholder="Jane" />
           </Field.Root>
-          <Field.Root name="lastName" className="flex flex-1 flex-col gap-2">
-            <Field.Label className={labelClassName}>Last Name</Field.Label>
+          <Field.Root name="lastName" className="flex flex-1 flex-col gap-1.5">
+            <Field.Label className={labelClassName}>Last name</Field.Label>
             <Input required className={inputClassName} placeholder="Doe" />
           </Field.Root>
         </div>
 
-        <Field.Root name="email" className="flex flex-col gap-2">
+        <Field.Root name="email" className="flex flex-col gap-1.5">
           <Field.Label className={labelClassName}>Email</Field.Label>
           <Input
             type="email"
@@ -110,7 +108,7 @@ export function JoinForm() {
           />
         </Field.Root>
 
-        <Field.Root name="referralSource" className="flex flex-col gap-2">
+        <Field.Root name="referralSource" className="flex flex-col gap-1.5">
           <Field.Label className={labelClassName}>
             Where did you hear about Runnel? (optional)
           </Field.Label>
@@ -121,19 +119,19 @@ export function JoinForm() {
         </Field.Root>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="flex items-center gap-2 text-sm leading-5 text-foreground/70">
+      <div className="flex flex-col gap-2.5">
+        <label className="flex items-center gap-2.5 text-sm leading-5 text-foreground/70">
           <Checkbox.Root
             name="tosAccepted"
             required
-            className="flex size-3.5 items-center justify-center rounded-sm border border-foreground/70 data-[checked]:bg-foreground data-[checked]:border-foreground"
+            className="flex size-4 items-center justify-center rounded border border-foreground/50 transition-colors data-[checked]:border-foreground data-[checked]:bg-foreground"
           >
             <Checkbox.Indicator className="text-text-light data-[unchecked]:hidden">
               <CheckIcon className="size-2.5" />
             </Checkbox.Indicator>
           </Checkbox.Root>
           <span>
-            <span className="text-foreground/70">* </span>I agree to the Runnel{" "}
+            I agree to the{" "}
             <a href="/legal/terms" className="underline">
               Terms of Service
             </a>{" "}
@@ -144,10 +142,10 @@ export function JoinForm() {
           </span>
         </label>
 
-        <label className="flex items-center gap-2 text-sm leading-5 text-foreground/70">
+        <label className="flex items-center gap-2.5 text-sm leading-5 text-foreground/70">
           <Checkbox.Root
             name="marketingEmails"
-            className="flex size-3.5 items-center justify-center rounded-sm border border-foreground/70 data-[checked]:bg-foreground data-[checked]:border-foreground"
+            className="flex size-4 items-center justify-center rounded border border-foreground/50 transition-colors data-[checked]:border-foreground data-[checked]:bg-foreground"
           >
             <Checkbox.Indicator className="text-text-light data-[unchecked]:hidden">
               <CheckIcon className="size-2.5" />
@@ -160,9 +158,9 @@ export function JoinForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-fit rounded-sm bg-foreground px-4 py-2 pr-8 font-medium text-base leading-6 text-text-light transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="w-fit rounded-md bg-foreground px-6 py-2.5 font-medium text-base text-text-light transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {isPending ? "Joining..." : "Join"}
+        {isPending ? "Joining..." : "Join waitlist"}
       </button>
     </form>
   );

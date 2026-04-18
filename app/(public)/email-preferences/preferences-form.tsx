@@ -25,19 +25,23 @@ export function EmailPreferencesForm({
         value={currentState ? "true" : "false"}
       />
       {state?.error && (
-        <p className="mb-4 text-sm text-red-700">{state.error}</p>
+        <p className="mb-4 text-sm text-danger">{state.error}</p>
       )}
       {state?.success && (
-        <p className="mb-4 text-sm text-green-700">
+        <p className="mb-4 text-sm text-success">
           Preferences updated successfully.
         </p>
       )}
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-sm bg-foreground px-4 py-2 font-medium text-base leading-6 text-text-light transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="rounded-md bg-foreground px-6 py-2.5 font-medium text-base text-text-light transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {isPending ? "Updating..." : currentState ? "Unsubscribe" : "Subscribe"}
+        {isPending
+          ? "Updating..."
+          : currentState
+            ? "Unsubscribe from marketing"
+            : "Subscribe to marketing"}
       </button>
     </form>
   );

@@ -17,9 +17,9 @@ export default async function EmailPreferencesPage({
 
   if (!email) {
     return (
-      <section className="px-8 pt-16 pb-24 lg:px-32">
-        <h1 className="mb-4 font-bold text-[40px] leading-[56px] text-foreground">
-          Manage your email preferences
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+          Email preferences
         </h1>
         <InfoBox>
           <p>No email address provided.</p>
@@ -37,26 +37,29 @@ export default async function EmailPreferencesPage({
   const isSubscribed = subscriber?.marketing_emails ?? false;
 
   return (
-    <section className="px-8 pt-16 pb-24 lg:px-32">
-      <h1 className="mb-6 font-bold text-[40px] leading-[56px] text-foreground">
-        Manage your email preferences
+    <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+      <h1 className="mb-6 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+        Email preferences
       </h1>
-      <p className="mb-6 max-w-2xl text-base leading-6 text-foreground">
-        You are {isSubscribed ? "subscribing" : "not subscribing"} from
-        marketing emails now. To {isSubscribed ? "unsubscribe" : "subscribe"} to
-        them, use the button below.
+      <p className="mb-6 text-base leading-relaxed text-muted">
+        You are currently{" "}
+        <strong className="text-foreground">
+          {isSubscribed ? "subscribed to" : "not subscribed to"}
+        </strong>{" "}
+        marketing emails. Use the button below to change this.
       </p>
       <EmailPreferencesForm email={email} isSubscribed={isSubscribed} />
-      <InfoBox className="mt-6 max-w-3xl">
+      <InfoBox className="mt-6">
         <p>
-          This will NOT unsubscribe you from the Waitlist! To unsubscribe from
-          the waitlist, please{" "}
+          This only controls marketing emails. To unsubscribe from the waitlist
+          entirely, go to{" "}
           <Link
             href={`/unsubscribe?email=${encodeURIComponent(email)}`}
             className="underline"
           >
-            click here.
+            unsubscribe
           </Link>
+          .
         </p>
       </InfoBox>
     </section>
