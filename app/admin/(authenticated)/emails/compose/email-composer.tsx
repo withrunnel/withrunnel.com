@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 const VARIABLE_DOCS = [
   { name: "{{firstName}}", description: "Subscriber's first name" },
@@ -20,7 +21,11 @@ Best regards,
 The Runnel Team
 `;
 
-export function EmailComposer() {
+export function EmailComposer({
+  turnstileSiteKey,
+}: {
+  turnstileSiteKey: string | null;
+}) {
   const [subject, setSubject] = useState("");
   const [mdxContent, setMdxContent] = useState(DEFAULT_MDX);
   const [recipientFilter, setRecipientFilter] = useState("confirmed");
@@ -32,6 +37,9 @@ export function EmailComposer() {
   } | null>(null);
   const [previewHtml, setPreviewHtml] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(turnstileSiteKey);
 
   const handlePreview = useCallback(async () => {
     const res = await fetch("/api/admin/emails/preview", {
@@ -67,6 +75,7 @@ export function EmailComposer() {
           subject,
           content: mdxContent,
           recipientFilter,
+          turnstileToken,
         }),
       });
       const data = await res.json();
@@ -79,8 +88,9 @@ export function EmailComposer() {
       setResult({ error: "Network error" });
     } finally {
       setSending(false);
+      setTurnstileResetNonce((current) => current + 1);
     }
-  }, [subject, mdxContent, recipientFilter]);
+  }, [subject, mdxContent, recipientFilter, turnstileToken]);
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -159,12 +169,27 @@ export function EmailComposer() {
           </div>
         </div>
 
+        {turnstileEnabled ? (
+          <div className="flex flex-col gap-2 rounded-lg bg-surface px-4 py-3">
+            <p className="font-medium text-sm text-foreground">
+              Help us beat the bots
+            </p>
+            <TurnstileWidget
+              action="admin-send-email"
+              inputName={null}
+              onTokenChange={setTurnstileToken}
+              resetNonce={turnstileResetNonce}
+              siteKey={turnstileSiteKey}
+            />
+          </div>
+        ) : null}
+
         {/* Actions */}
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={handleSend}
-            disabled={sending}
+            disabled={sending || (turnstileEnabled && !turnstileToken)}
             className="rounded-sm bg-foreground px-4 py-2 font-medium text-sm text-text-light transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {sending ? "Sending..." : "Send Email"}

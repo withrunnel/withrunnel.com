@@ -17,7 +17,7 @@ export function HeroShader({
         scale={0.5}
         colorBack="#00000000"
         colorFront="#F4F4F2"
-        className="h-48 w-64 shrink-0 rounded-lg"
+        className="h-48 w-96 shrink-0 rounded-lg"
       />
     );
   }

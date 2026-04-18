@@ -4,10 +4,10 @@ import { useActionState } from "react";
 import { toggleMarketingAction } from "./actions";
 
 export function EmailPreferencesForm({
-  email,
+  token,
   isSubscribed,
 }: {
-  email: string;
+  token: string;
   isSubscribed: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(
@@ -18,12 +18,14 @@ export function EmailPreferencesForm({
 
   return (
     <form action={formAction}>
-      <input type="hidden" name="email" value={email} />
-      <input
-        type="hidden"
-        name="currentValue"
-        value={currentState ? "true" : "false"}
-      />
+      <p className="mb-6 text-base leading-relaxed text-muted">
+        You are currently{" "}
+        <strong className="text-foreground">
+          {currentState ? "subscribed to" : "not subscribed to"}
+        </strong>{" "}
+        marketing emails. Use the button below to change this.
+      </p>
+      <input type="hidden" name="token" value={token} />
       {state?.error && (
         <p className="mb-4 text-sm text-danger">{state.error}</p>
       )}

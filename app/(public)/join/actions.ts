@@ -1,12 +1,18 @@
 "use server";
 
 import { nanoid } from "nanoid";
+import { headers } from "next/headers";
 import { z } from "zod/v4";
 import { logAudit } from "@/lib/audit";
 import { getDb } from "@/lib/db";
 import { sendConfirmationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIpFromHeaders } from "@/lib/request-context";
 import { sanitizeEmail, sanitizeInput } from "@/lib/sanitize";
+import {
+  TURNSTILE_RESPONSE_FIELD,
+  verifyTurnstileToken,
+} from "@/lib/turnstile";
 
 const joinSchema = z.object({
   firstName: z.string().min(1).max(100),
@@ -42,12 +48,18 @@ export async function joinWaitlist(
     parsed.data;
 
   const sanitizedEmail = sanitizeEmail(email);
+  const ip = getClientIpFromHeaders(await headers());
 
-  const rl = rateLimit(`join:${sanitizedEmail}`, 3, 15 * 60 * 1000);
-  if (!rl.success) {
+  const emailRateLimit = rateLimit(
+    `join:email:${sanitizedEmail}`,
+    3,
+    15 * 60 * 1000,
+  );
+  const ipRateLimit = rateLimit(`join:ip:${ip}`, 6, 15 * 60 * 1000);
+  if (!emailRateLimit.success || !ipRateLimit.success) {
     return {
       success: false,
-      error: "Too many attempts. Please try again later.",
+      error: "Too many email requests. Please try again later.",
     };
   }
 
@@ -68,6 +80,20 @@ export async function joinWaitlist(
           error: "This email is already on the waitlist.",
         };
       }
+    }
+
+    const turnstileResult = await verifyTurnstileToken({
+      token: formData.get(TURNSTILE_RESPONSE_FIELD),
+      ip,
+      action: "join-waitlist",
+    });
+
+    if (!turnstileResult.success) {
+      return { success: false, error: turnstileResult.error };
+    }
+
+    if (existing.length > 0) {
+      const sub = existing[0];
       if (sub.status === "pending_confirmation") {
         await sql`
           UPDATE subscribers

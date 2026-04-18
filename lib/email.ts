@@ -1,4 +1,9 @@
 import { ServerClient } from "postmark";
+import {
+  createEmailManagementToken,
+  getEmailManagementUrl,
+} from "./email-management";
+import { LOGO_DARK_BASE64, LOGO_LIGHT_BASE64 } from "./email-logos";
 
 let client: ServerClient | null = null;
 
@@ -10,6 +15,25 @@ function getPostmark() {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!;
+
+async function getEmailManagementLinks(params: {
+  subscriberId?: string;
+  to: string;
+  firstName?: string;
+  lastName?: string;
+}) {
+  const token = await createEmailManagementToken({
+    subscriberId: params.subscriberId,
+    email: params.to,
+    firstName: params.firstName,
+    lastName: params.lastName,
+  });
+
+  return {
+    unsubscribeUrl: getEmailManagementUrl("/unsubscribe", token),
+    preferencesUrl: getEmailManagementUrl("/email-preferences", token),
+  };
+}
 
 function emailLayout(content: string, preheader: string, footerExtra = "") {
   return `<!DOCTYPE html>
@@ -49,7 +73,7 @@ function emailLayout(content: string, preheader: string, footerExtra = "") {
   <!-- Header -->
   <tr>
     <td style="padding:24px 32px;border-bottom:1px solid #C4C4CC;">
-      <img src="${BASE_URL}/logo-dark.png" alt="Runnel" height="28" style="display:block;" />
+      <img src="${LOGO_DARK_BASE64}" alt="Runnel" width="15" height="20" style="display:block;width:15px;height:20px;" />
     </td>
   </tr>
 
@@ -66,7 +90,7 @@ function emailLayout(content: string, preheader: string, footerExtra = "") {
       <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
         <tr>
           <td valign="top" style="padding-bottom:24px;">
-            <img src="${BASE_URL}/logo-light.png" alt="Runnel" height="36" style="display:block;" />
+            <img src="${LOGO_LIGHT_BASE64}" alt="Runnel" width="18" height="24" style="display:block;width:18px;height:24px;" />
             <p style="margin:8px 0 0;font-size:13px;line-height:1.4;color:rgba(244,244,242,0.6);">&copy; 2026 Runnel, all rights reserved.</p>
             ${footerExtra}
           </td>
@@ -143,10 +167,17 @@ export async function sendConfirmationEmail(params: {
 }
 
 export async function sendWelcomeEmail(params: {
+  subscriberId?: string;
   to: string;
   firstName: string;
+  lastName?: string;
 }) {
-  const unsubscribeUrl = `${BASE_URL}/unsubscribe?email=${encodeURIComponent(params.to)}`;
+  const { preferencesUrl, unsubscribeUrl } = await getEmailManagementLinks({
+    subscriberId: params.subscriberId,
+    to: params.to,
+    firstName: params.firstName,
+    lastName: params.lastName,
+  });
   const name = params.firstName || "there";
   const html = emailLayout(
     `
@@ -158,7 +189,7 @@ export async function sendWelcomeEmail(params: {
       <p style="font-size:16px;line-height:1.6;margin:0;color:#2a2a31;">See you soon,<br/>The Runnel Team</p>
     `,
     "Your spot on the Runnel waitlist is confirmed. We'll notify you when access is ready.",
-    `<p style="margin:12px 0 0;"><a href="${unsubscribeUrl}" style="color:rgba(244,244,242,0.6);text-decoration:underline;font-size:12px;">Unsubscribe</a></p>`,
+    `<p style="margin:12px 0 0;"><a href="${preferencesUrl}" style="color:rgba(244,244,242,0.6);text-decoration:underline;font-size:12px;">Manage preferences</a> &nbsp;&middot;&nbsp; <a href="${unsubscribeUrl}" style="color:rgba(244,244,242,0.6);text-decoration:underline;font-size:12px;">Unsubscribe</a></p>`,
   );
 
   const postmark = getPostmark();
@@ -172,19 +203,26 @@ export async function sendWelcomeEmail(params: {
 }
 
 export async function sendBulkEmail(params: {
+  subscriberId?: string;
   to: string;
   firstName: string;
+  lastName?: string;
   subject: string;
   htmlContent: string;
 }) {
-  const unsubscribeUrl = `${BASE_URL}/unsubscribe?email=${encodeURIComponent(params.to)}`;
+  const { preferencesUrl, unsubscribeUrl } = await getEmailManagementLinks({
+    subscriberId: params.subscriberId,
+    to: params.to,
+    firstName: params.firstName,
+    lastName: params.lastName,
+  });
   const html = emailLayout(
     params.htmlContent.replace(
       /\{\{firstName\}\}/g,
       params.firstName || "there",
     ),
     "",
-    `<p style="margin:12px 0 0;"><a href="${unsubscribeUrl}" style="color:rgba(244,244,242,0.6);text-decoration:underline;font-size:12px;">Unsubscribe</a></p>`,
+    `<p style="margin:12px 0 0;"><a href="${preferencesUrl}" style="color:rgba(244,244,242,0.6);text-decoration:underline;font-size:12px;">Manage preferences</a> &nbsp;&middot;&nbsp; <a href="${unsubscribeUrl}" style="color:rgba(244,244,242,0.6);text-decoration:underline;font-size:12px;">Unsubscribe</a></p>`,
   );
 
   const postmark = getPostmark();

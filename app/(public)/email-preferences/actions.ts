@@ -1,7 +1,10 @@
 "use server";
 
 import { getDb } from "@/lib/db";
-import { sanitizeEmail } from "@/lib/sanitize";
+import {
+  findSubscriberForEmailManagement,
+  verifyEmailManagementToken,
+} from "@/lib/email-management";
 
 type PrefsState = {
   success: boolean;
@@ -13,24 +16,45 @@ export async function toggleMarketingAction(
   _prev: PrefsState,
   formData: FormData,
 ): Promise<PrefsState> {
-  const email = sanitizeEmail(formData.get("email") as string);
-  const currentValue = formData.get("currentValue") === "true";
+  const token = formData.get("token");
+  if (typeof token !== "string" || !token) {
+    return { success: false, error: "Missing preferences token." };
+  }
 
-  if (!email) return { success: false, error: "Email is required." };
+  const claims = await verifyEmailManagementToken(token);
+  if (!claims) {
+    return {
+      success: false,
+      error: "This preferences link is invalid or has expired.",
+    };
+  }
 
   const sql = getDb();
-  const newValue = !currentValue;
+  const subscriber = await findSubscriberForEmailManagement(claims);
+
+  if (!subscriber) {
+    return { success: false, error: "Subscription not found." };
+  }
+
+  if (subscriber.status === "unsubscribed") {
+    return {
+      success: false,
+      error: "You are no longer on the waitlist. Resubscribe to update this.",
+    };
+  }
+
+  const newValue = !subscriber.marketing_emails;
 
   try {
     const result = await sql`
       UPDATE subscribers
       SET marketing_emails = ${newValue}, updated_at = NOW()
-      WHERE email = ${email}
+      WHERE id = ${subscriber.id}
       RETURNING id
     `;
 
     if (result.length === 0) {
-      return { success: false, error: "Email not found." };
+      return { success: false, error: "Subscription not found." };
     }
 
     return { success: true, newValue };

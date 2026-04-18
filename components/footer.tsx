@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="mt-auto flex flex-col gap-16 bg-surface-dark px-8 py-16 lg:gap-32 lg:px-18">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="flex flex-col gap-5 lg:w-1/2">
-          <LogoFull className="h-12 w-auto lg:h-16" fill="#F4F4F2" />
+          <LogoFull className="h-12 w-auto self-start lg:h-16" fill="#F4F4F2" />
           <p className="font-light text-base leading-5 text-text-light/70">
             &copy; 2026 Runnel, all rights reserved.
           </p>

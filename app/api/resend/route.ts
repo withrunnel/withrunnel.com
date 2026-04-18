@@ -5,24 +5,43 @@ import { getDb } from "@/lib/db";
 import { sendConfirmationEmail, sendWelcomeEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, sanitizeEmail } from "@/lib/sanitize";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const { email, turnstileToken } = await request.json();
     const sanitized = sanitizeEmail(email);
     if (!sanitized) {
       return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
 
     const ip = getClientIp(request);
-    const rl = rateLimit(`resend:${ip}`, 5, 15 * 60 * 1000);
-    if (!rl.success) {
+    const ipRateLimit = rateLimit(`resend:ip:${ip}`, 5, 15 * 60 * 1000);
+    const emailRateLimit = rateLimit(
+      `resend:email:${sanitized}`,
+      3,
+      15 * 60 * 1000,
+    );
+    if (!ipRateLimit.success || !emailRateLimit.success) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const turnstileResult = await verifyTurnstileToken({
+      token: turnstileToken,
+      ip,
+      action: "resend-email",
+    });
+
+    if (!turnstileResult.success) {
+      return NextResponse.json(
+        { error: turnstileResult.error },
+        { status: 400 },
+      );
     }
 
     const sql = getDb();
     const rows = await sql`
-      SELECT id, first_name, status FROM subscribers WHERE email = ${sanitized}
+      SELECT id, first_name, last_name, status FROM subscribers WHERE email = ${sanitized}
     `;
 
     if (rows.length === 0) {
@@ -50,8 +69,10 @@ export async function POST(request: Request) {
       });
     } else if (sub.status === "confirmed") {
       await sendWelcomeEmail({
+        subscriberId: sub.id,
         to: sanitized,
         firstName: sub.first_name,
+        lastName: sub.last_name,
       });
     }
 

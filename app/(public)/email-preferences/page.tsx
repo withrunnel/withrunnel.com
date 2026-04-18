@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoBox } from "@/components/info-box";
-import { getDb } from "@/lib/db";
+import {
+  findSubscriberForEmailManagement,
+  verifyEmailManagementToken,
+} from "@/lib/email-management";
 import { EmailPreferencesForm } from "./preferences-form";
 
 export const metadata: Metadata = {
@@ -11,50 +14,94 @@ export const metadata: Metadata = {
 export default async function EmailPreferencesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ email?: string }>;
+  searchParams: Promise<{ token?: string }>;
 }) {
-  const { email } = await searchParams;
+  const { token } = await searchParams;
 
-  if (!email) {
+  if (!token) {
     return (
       <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
         <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
           Email preferences
         </h1>
         <InfoBox>
-          <p>No email address provided.</p>
+          <p>No preferences token provided.</p>
         </InfoBox>
       </section>
     );
   }
 
-  const sql = getDb();
-  const rows = await sql`
-    SELECT marketing_emails, status FROM subscribers WHERE email = ${email.toLowerCase()}
-  `;
+  const claims = await verifyEmailManagementToken(token);
 
-  const subscriber = rows[0];
-  const isSubscribed = subscriber?.marketing_emails ?? false;
+  if (!claims) {
+    return (
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+          Email preferences
+        </h1>
+        <InfoBox>
+          <p>This preferences link is invalid or has expired.</p>
+        </InfoBox>
+      </section>
+    );
+  }
+
+  const subscriber = await findSubscriberForEmailManagement(claims);
+
+  if (!subscriber) {
+    return (
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-4 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+          Email preferences
+        </h1>
+        <InfoBox>
+          <p>This preferences link is no longer active.</p>
+        </InfoBox>
+      </section>
+    );
+  }
+
+  if (subscriber.status === "unsubscribed") {
+    return (
+      <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
+        <h1 className="mb-6 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
+          Email preferences
+        </h1>
+        <InfoBox>
+          <p>
+            You&apos;re no longer on the waitlist, so there are no marketing
+            preferences to update.
+          </p>
+          <p className="mt-2">
+            If you want to join again, go to{" "}
+            <Link
+              href={`/resubscribe?token=${encodeURIComponent(token)}`}
+              className="underline"
+            >
+              resubscribe
+            </Link>
+            .
+          </p>
+        </InfoBox>
+      </section>
+    );
+  }
 
   return (
     <section className="mx-auto max-w-2xl px-8 pt-20 pb-24">
       <h1 className="mb-6 font-bold text-3xl leading-tight text-foreground sm:text-[40px]">
         Email preferences
       </h1>
-      <p className="mb-6 text-base leading-relaxed text-muted">
-        You are currently{" "}
-        <strong className="text-foreground">
-          {isSubscribed ? "subscribed to" : "not subscribed to"}
-        </strong>{" "}
-        marketing emails. Use the button below to change this.
-      </p>
-      <EmailPreferencesForm email={email} isSubscribed={isSubscribed} />
+      <EmailPreferencesForm
+        token={token}
+        isSubscribed={subscriber.marketing_emails}
+      />
       <InfoBox className="mt-6">
         <p>
           This only controls marketing emails. To unsubscribe from the waitlist
           entirely, go to{" "}
           <Link
-            href={`/unsubscribe?email=${encodeURIComponent(email)}`}
+            href={`/unsubscribe?token=${encodeURIComponent(token)}`}
             className="underline"
           >
             unsubscribe

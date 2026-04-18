@@ -3,8 +3,10 @@
 import { Checkbox } from "@base-ui/react/checkbox";
 import { Field } from "@base-ui/react/field";
 import { Input } from "@base-ui/react/input";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { InfoBox } from "@/components/info-box";
+import { ResendEmailForm } from "@/components/resend-email-form";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { joinWaitlist } from "./actions";
 
 const inputClassName =
@@ -28,8 +30,21 @@ function CheckIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-export function JoinForm() {
+export function JoinForm({
+  turnstileSiteKey,
+}: {
+  turnstileSiteKey: string | null;
+}) {
   const [state, formAction, isPending] = useActionState(joinWaitlist, null);
+  const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(turnstileSiteKey);
+
+  useEffect(() => {
+    if (state) {
+      setTurnstileResetNonce((current) => current + 1);
+    }
+  }, [state]);
 
   if (state?.success) {
     return (
@@ -56,23 +71,17 @@ export function JoinForm() {
             Almost there! Check your inbox and click the confirmation link to
             secure your spot.
           </p>
-          <p className="mt-1.5 text-sm text-foreground/60">
-            Don&apos;t see it? Check your spam folder or{" "}
-            <button
-              type="button"
-              className="underline transition-opacity hover:opacity-70"
-              onClick={() => {
-                fetch("/api/resend", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email: state.email }),
-                });
-              }}
-            >
-              resend the email
-            </button>
-            .
-          </p>
+          {state.email ? (
+            <ResendEmailForm
+              className="mt-4"
+              email={state.email}
+              title="Still missing it?"
+              description="Click the button below and we’ll send another confirmation email."
+              buttonLabel="Resend confirmation email"
+              successMessage="A new confirmation email is on the way."
+              turnstileSiteKey={turnstileSiteKey}
+            />
+          ) : null}
         </div>
       </InfoBox>
     );
@@ -155,9 +164,23 @@ export function JoinForm() {
         </label>
       </div>
 
+      {turnstileEnabled ? (
+        <div className="flex flex-col gap-2 rounded-lg bg-surface px-4 py-3">
+          <p className="font-medium text-sm text-foreground">
+            Help us beat the bots
+          </p>
+          <TurnstileWidget
+            action="join-waitlist"
+            onTokenChange={setTurnstileToken}
+            resetNonce={turnstileResetNonce}
+            siteKey={turnstileSiteKey}
+          />
+        </div>
+      ) : null}
+
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || (turnstileEnabled && !turnstileToken)}
         className="w-fit rounded-md bg-foreground px-6 py-2.5 font-medium text-base text-text-light transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {isPending ? "Joining..." : "Join waitlist"}

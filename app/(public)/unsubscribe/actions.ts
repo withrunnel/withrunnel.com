@@ -2,7 +2,10 @@
 
 import { logAudit } from "@/lib/audit";
 import { getDb } from "@/lib/db";
-import { sanitizeEmail } from "@/lib/sanitize";
+import {
+  findSubscriberForEmailManagement,
+  verifyEmailManagementToken,
+} from "@/lib/email-management";
 
 type UnsubState = { success: boolean; error?: string } | null;
 
@@ -10,20 +13,24 @@ export async function unsubscribeAction(
   _prev: UnsubState,
   formData: FormData,
 ): Promise<UnsubState> {
-  const email = sanitizeEmail(formData.get("email") as string);
-  if (!email) return { success: false, error: "Email is required." };
-
-  const sql = getDb();
-
-  const rows = await sql`
-    SELECT id, status FROM subscribers WHERE email = ${email}
-  `;
-
-  if (rows.length === 0) {
-    return { success: false, error: "Email not found on the waitlist." };
+  const token = formData.get("token");
+  if (typeof token !== "string" || !token) {
+    return { success: false, error: "Missing unsubscribe token." };
   }
 
-  const subscriber = rows[0];
+  const claims = await verifyEmailManagementToken(token);
+  if (!claims) {
+    return {
+      success: false,
+      error: "This unsubscribe link is invalid or has expired.",
+    };
+  }
+
+  const sql = getDb();
+  const subscriber = await findSubscriberForEmailManagement(claims);
+  if (!subscriber) {
+    return { success: false, error: "Subscription not found." };
+  }
 
   if (subscriber.status === "unsubscribed") {
     return { success: true };
@@ -48,7 +55,7 @@ export async function unsubscribeAction(
     action: "subscriber.unsubscribed",
     entityType: "subscriber",
     entityId: subscriber.id,
-    metadata: {},
+    metadata: { email: claims.email },
   });
 
   return { success: true };

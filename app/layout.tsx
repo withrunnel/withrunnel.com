@@ -1,3 +1,4 @@
+import { Agentation } from "agentation";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -11,6 +12,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export const metadata: Metadata = {
   title: "Runnel — The Inference Platform",
@@ -31,7 +34,15 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <head>
+        {TURNSTILE_SITE_KEY ? (
+          <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        ) : null}
+      </head>
+      <body className="flex min-h-full flex-col font-sans">
+        {children}
+        {process.env.NODE_ENV === "development" && <Agentation />}
+      </body>
     </html>
   );
 }
